@@ -9,8 +9,8 @@ from random import uniform
 from itertools import groupby
 
 
-from Food import *
-from Agent import *
+from entities.food import *
+from entities.agent import *
 
 import operator 
 

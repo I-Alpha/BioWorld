@@ -19,18 +19,13 @@ import time
 import turtle as tl
 import random
 import copy
-import sys
 from pandas.core.indexes import interval
-from plotting import *
-import dash
+from entities.agent import Agent
+from entities.food import Food  
+from environments.plotting import *
 from dash.dependencies import Output, Input
-import plotly
-from collections import defaultdict
-from Agent import Agent
-from Food import Food
-import multiprocessing 
+from collections import defaultdict 
 from multiprocessing import Process, Value, Array, Manager
-import webbrowser
 import pygame
 import tensorflow as tf
 import itertools
@@ -39,9 +34,6 @@ physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.LogicalDeviceConfiguration(
     memory_limit=None, experimental_priority=None
 ) 
-
-# pygame.font.init()
-# pygame.init()
 
 def time_convert(sec):
   mins = sec // 60
@@ -75,7 +67,7 @@ def calc_heading(org, food):
     return theta_d / 180
 
 
-class JumpEnv():
+class Env():
 
     random.seed(6)
     # screen = pygame.display.set_mode((300,300))
@@ -133,8 +125,8 @@ class JumpEnv():
         self.clock = pygame.time.Clock()
     
     def update_display(self,t_step):  
-        self.surface.fill(JumpEnv.WHITE) 
-        pygame.draw.rect(self.surface, JumpEnv.BLACK, 
+        self.surface.fill(Env.WHITE) 
+        pygame.draw.rect(self.surface, Env.BLACK, 
                          pygame.Rect(
                              self.settings["pygame_worldbox"][0][0],
                              self.settings["pygame_worldbox"][0][1],
@@ -183,10 +175,10 @@ class JumpEnv():
         range_multipliery =  .980 * self.settings['pygame_worldbox'][1][1]/arena_diffy
         
         for org in self.organisms:  
-            if org.behaviour=="predator":
-                orgColor=JumpEnv.ORANGE
+            if org.behaviour=="carnivore":
+                orgColor=Env.ORANGE
             else:
-                orgColor=JumpEnv.BLACK
+                orgColor=Env.BLACK
             pygame.draw.circle(
                 self.surface,
                 orgColor,
@@ -200,7 +192,7 @@ class JumpEnv():
         for food in self.foods:                
             pygame.draw.rect(
                 self.surface,
-                JumpEnv.GREEN,
+                Env.GREEN,
                 pygame.Rect( 
                    (range_modifierx + food.x) * range_multiplierx,
                    (range_modifiery + food.y) * range_multipliery,
@@ -310,8 +302,8 @@ class JumpEnv():
             # Non-living food organism behaviour
             for food in self.foods:
                 if not food.kill:
-                    non_predators = [org for org in self.organisms if org.behaviour != "predator"]
-                    for org in non_predators:        
+                    non_carnivores = [org for org in self.organisms if org.behaviour != "carnivore"]
+                    for org in non_carnivores:        
                             food_org_dist = dist(org.x, org.y, food.x, food.y)
                             # UPDATE FITNESS FUNCTION
                             if food_org_dist <= 0.075:
@@ -332,21 +324,21 @@ class JumpEnv():
                 organism_group[key] = [agent for agent in group]           
              
             if len(organism_group)  >= 2:
-                for predator in organism_group[False]:
-                    predator.d_food = 100
-                    predator.r_food = 0 
+                for carnivore in organism_group[False]:
+                    carnivore.d_food = 100
+                    carnivore.r_food = 0 
                     for herbivore in organism_group[True]:
                         if not herbivore.kill:
-                            dist_p_h = dist(predator.x, predator.y, herbivore.x, herbivore.y) 
+                            dist_p_h = dist(carnivore.x, carnivore.y, herbivore.x, herbivore.y) 
                             if dist_p_h < 0.075:
-                                predator.fitness += (herbivore.fitness * .15) 
+                                carnivore.fitness += (herbivore.fitness * .15) 
                                 if t_step - herbivore.hlocked_t > settings["hlocked_time"]:
                                     herbivore.fitness -= .3
                                     herbivore.hlocked_t = t_step 
                                 if herbivore.fitness <= 0:
                                     herbivore.kill = True
                                     herbivore.death_time = t_step 
-                                predator.digest_t_step = 20 + t_step
+                                carnivore.digest_t_step = 20 + t_step
                                 # food.respawn(settings) 
                                 
             #Remove dead food
@@ -368,7 +360,7 @@ class JumpEnv():
                 
                 #Remove dead organisms
                 if not org.kill:
-                    org.fitness = org.fitness - (self.settings["food_decay per_step"] if org.behaviour != "predator" else (self.settings["food_decay per_step"]/1.3))
+                    org.fitness = org.fitness - (self.settings["food_decay per_step"] if org.behaviour != "carnivore" else (self.settings["food_decay per_step"]/1.3))
                     if org.fitness <= 0:
                         org.kill = True
                 if org.kill: 
@@ -394,12 +386,12 @@ class JumpEnv():
             
                  
 
-            #split organism group between predators and non-predators
-            non_predators= list(filter(lambda x: x.behaviour != 'predator', self.organisms))
+            #split organism group between carnivores and non-carnivores
+            non_carnivores= list(filter(lambda x: x.behaviour != 'carnivore', self.organisms))
                 
             # CALCULATE HEADING TO NEAREST FOOD SOURCE
             for food in self.foods:
-                for org in non_predators:
+                for org in non_carnivores:
 
                     # CALCULATE DISTANCE TO SELECTED FOOD PARTICLE
                     food_org_dist = dist(org.x, org.y, food.x, food.y)
@@ -419,7 +411,7 @@ class JumpEnv():
                         org1.nearest_neighbour_v = org2.v
                         org1.nearest_neighbour_r = calc_heading(org1, org2)
                         org1.nearest_neighbour_type = org2.b_id + 1
-                        if (org1.behaviour == "predator" and org2.behaviour != "predator" and org1_org2_dist < org1.d_food):                    
+                        if (org1.behaviour == "carnivore" and org2.behaviour != "carnivore" and org1_org2_dist < org1.d_food):                    
                             org1.d_food = org1.nearest_neighbour_d
                             org1.r_food = org1.nearest_neighbour_r 
                     
