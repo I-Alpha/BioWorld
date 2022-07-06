@@ -220,16 +220,15 @@ class Env():
                 pygame.draw.circle(
                     self.surface,
                     self.settings["colors"][org.behaviour],
-                    (
+                     (
                         (self.display_vals["range_modifierx"] + org.x) *
                         self.display_vals["range_multiplierx"],
                         (self.display_vals["range_modifiery"] + org.y) *
                         self.display_vals["range_multipliery"]
                     ),
-                    floor(
+                   floor(
                         org.size * (self.display_vals["x_ratio"] + self.display_vals["y_ratio"]) / 2),
-                    floor(
-                        org.size * (self.display_vals["x_ratio"] + self.display_vals["y_ratio"]) / 2)
+                   2 if org.behaviour == "carnivore" else 1,
                 )
 
         def draw_background():
@@ -315,7 +314,7 @@ class Env():
                             settings['herbivore']["digest_efficiency"]
                         food.kill = True
                         food.death_time = t_step
-                        org.d_food = 100
+                        org.d_food = settings[org.behaviour]['food_detect_range']
                         org.r_food = 0
 
         def handle_predator_feeding():
@@ -426,10 +425,10 @@ class Env():
 
     def resetOrgsStates(self):
         for org in self.organisms:
-            org.d_food = 100
+            org.d_food =   self.settings[org.behaviour]['food_detect_range']
             org.r_food = 0
             org.neighbours = 0
-            org.nearest_neighbour_d = 100
+            org.nearest_neighbour_d = self.settings[org.behaviour]['neighbour_detect_range']
             org.nearest_neighbour_v = 0
             org.nearest_neighbour_r = 0
             org.nearest_neighbour_type = 0
