@@ -9,4 +9,4 @@
 ### Run execute in bin directory....
 ### or .py file execute, located at :  Bioworld/bioworld/execute.py
 
-[sample image]("/bioworld/assets/Bioworld.png")
+![sample image](https://github.com/I-Alpha/BioWorld/blob/master/bioworld/assets/Bioworld.png)
