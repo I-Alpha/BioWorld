@@ -1,0 +1,14 @@
+
+
+ 
+import pathlib
+import os
+import sys
+import execute, gpu_check
+
+sys.path.append(os.path.dirname(os.getcwd()))
+print(pathlib.Path(__file__).parent.resolve())
+
+gpu_check.check()
+execute()
+print("\nExecuting......\n")

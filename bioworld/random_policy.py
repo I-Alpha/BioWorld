@@ -1,6 +1,5 @@
 # this is an example code on using the environment. 
 import numpy as np 
-from App.BioworldEnv import * 
 # import the env class
 
 # create an object of env class

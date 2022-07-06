@@ -28,25 +28,15 @@ import plotly.graph_objs as go
 import plotly.figure_factory as FF
 from icecream import ic
 from keras.layers.advanced_activations import PReLU, LeakyReLU
+ 
 
-physical_devices = tf.config.list_physical_devices('GPU')
-tf.config.LogicalDeviceConfiguration(
-    memory_limit=None, experimental_priority=None
-) 
-
-
-
-def build_model1(action_space=2):
+def build_simple_model(action_space=2,state_space=1):
     
-    X_input = Input(shape=(8,))
+    X_input = Input(shape=(state_space,))
     X = Dense(1, activation="relu")(X_input)
-    X1 = Dense(3, activation="relu")(X)
-    X2 = Dense(2, activation="tanh")(X1)
-    model = Model(inputs=X_input, outputs=X2, name='build_model1') 
+    X1 = Dense(action_space, activation="relu")(X) 
+    model = Model(inputs=X_input, outputs=X1, name='build_model1') 
     model.compile(loss="mean_squared_error", optimizer=Adam(lr=0.00025,epsilon=0.01), metrics=["accuracy"])
-    model.summary()
-    return model, model.get_weights()
-
-
+    return model, model.get_weights() 
 if __name__ == '__main__':
-    build_model1()
+    build_simple_model()
