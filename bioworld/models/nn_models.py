@@ -30,16 +30,13 @@ from icecream import ic
 from keras.layers.advanced_activations import PReLU, LeakyReLU
  
 
-def build_simple_model(action_space=2):
+def build_simple_model(action_space=2,state_space=1):
     
-    X_input = Input(shape=(8,))
+    X_input = Input(shape=(state_space,))
     X = Dense(1, activation="relu")(X_input)
-    X1 = Dense(3, activation="relu")(X) 
+    X1 = Dense(action_space, activation="relu")(X) 
     model = Model(inputs=X_input, outputs=X1, name='build_model1') 
     model.compile(loss="mean_squared_error", optimizer=Adam(lr=0.00025,epsilon=0.01), metrics=["accuracy"])
-    model.summary()
-    return model, model.get_weights()
-
-
+    return model, model.get_weights() 
 if __name__ == '__main__':
     build_simple_model()

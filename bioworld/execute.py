@@ -12,36 +12,46 @@ settings["starting_interval"] = 0
 settings['screen_size'] = (900,800)
 settings["dash_update_interval"] = 100
 settings["pygame_worldbox"] = [(settings['screen_size'][0] * .01, settings['screen_size'][1] *.1),
-                               (settings['screen_size'][0] * .7, settings['screen_size'][1] *.8),]
+                                (settings['screen_size'][0] * .7, settings['screen_size'][1] *.8),]
 
 settings['agents'] = {
     'herbivore' :50,
-    'carnivore': 0,    
+    'carnivore': 25,    
 }
 
 settings['carnivore'] = {
-    "bite_dmg" : .3,
-    "digest_efficiency" : .5,
-    "digest_time" : 20,
+    "bite_dmg" : .02,
+    "digest_efficiency" : .50,
+    "digest_time" : 1,
     "r_fitness_decay" : 0 ,
-    "v_fitness_decay" : 0 
+    "v_fitness_decay" : 0 ,
+    "t_fitness_decay" : .9996,
+    "feed_range" : 0.065,
 }
 
 settings['herbivore'] = {
-    "digest_efficiency" : .7,
-    "digest_time" : 4,
-    "bite_dmg" : 1,
-    "t_fitness_decay" : 1,
+    "digest_efficiency" : .80,
+    "digest_time" : 1,
+    "bite_dmg" : .007,
+    "t_fitness_decay" : .9996,
     "r_fitness_decay" : 1,
-    "v_fitness_decay" : 1 
+    "v_fitness_decay" : 1, 
+    "feed_range" : 0.065,
 }
 
 settings['omnivore'] = {}
+settings["pre-train_time"]={}
+settings["mind_type"]="custom" 
+settings["neuralnet"] = None
+settings["pre-train_time"]["step"] = 5
+settings["pre-train_time"]["mind_type"] = "random"
+settings['gen_time'] = 150  # generation length  (seconds)
+settings['dt'] = 0.4  
+settings['gens'] = 100           # number of generations
+settings['elitism'] = 0.20      # elitism (selection bias)
+settings['mutate'] = 0.2       # mutation rate
 
-settings['gen_time'] = 10  # generation length  (seconds)
-settings['dt'] = 0.004  
-
-settings=getConfig("original",settings)
+settings=getConfig("default",settings)
 
 
 def execute():
@@ -52,9 +62,8 @@ def execute():
         evolve = get_algo("basic")
     
     for gen in range(0, settings['gens']):
-
         # SIMULATE
-        env.organisms = env.simulate(settings, gen) 
+        env.simulate(settings, gen) 
         
         # EVOLVE organisms
         env.organisms, stats = evolve(settings, env.organisms, gen) 

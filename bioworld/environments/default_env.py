@@ -333,7 +333,6 @@ class Env():
                             if dist_p_h < 0.075:
                                 carnivore.fitness += (herbivore.fitness * .15) 
                                 if t_step - herbivore.hlocked_t > settings["hlocked_time"]:
-                                    herbivore.fitness -= .3
                                     herbivore.hlocked_t = t_step 
                                 if herbivore.fitness <= 0:
                                     herbivore.kill = True

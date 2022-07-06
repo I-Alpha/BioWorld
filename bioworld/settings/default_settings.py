@@ -8,9 +8,20 @@ from models.nn_models import build_simple_model
 
 def getSettings(settings):
     # GLOBAL SETTINGS
-  # COLOR
-    _settings = {}
+    
+    _settings={} 
     _settings.update(settings)
+    
+    _settings['FPS'] = 80
+    _settings['graphics'] = True
+    _settings["world_size"] = (2) 
+    _settings["dash_debug"] = True
+    _settings["starting_interval"] = 0
+    _settings['screen_size'] = (900,900)
+    _settings["dash_update_interval"] = 100
+    _settings["pygame_worldbox"] = [(settings['screen_size'][0] * .01, settings['screen_size'][1] *.1),
+                                  (settings['screen_size'][0] * .7, settings['screen_size'][1] *.8),]
+  # COLOR
     _settings["colors"] = {} if not settings.get(
         "colors", False) else settings["colors"]
     _settings["colors"]["herbivore"] = BLACK
@@ -25,15 +36,15 @@ def getSettings(settings):
     _settings['y_max'] = 2.0        # arena northern border
 
   # PHYSICS
-    _settings['dt'] = 0.04           # simulation time step      (dt)
+    _settings['dt'] = 0.004           # simulation time step      (dt)
     _settings['gravity'] = 1.9  # default
     _settings['dr_max'] = 720
-    _settings['v_max'] = 0.5
-    _settings['dv_max'] = 0.35
-    _settings["resistance"] = 1
+    _settings['v_max'] = 0.1
+    _settings['dv_max'] = 0.1
+    _settings["resistance"] = .9999
     _settings['wall_penalty'] = 0.005
-    _settings["acc_min"] = .2
-    _settings["acc_max"] = 3
+    _settings["acc_min"] = .05
+    _settings["acc_max"] = .2
 
   # ENTITIES
     # AGENTS
@@ -47,22 +58,21 @@ def getSettings(settings):
     _settings['food_respawn_time'] = 1000
     _settings["food_num"] = 50     # number of food particles
     _settings["food_decay per_step"] = 0  # .000005
+    _settings["hlocked_time"] = 2
 
   # NEURALNET SETTINGS
-    _settings['neuralnet'], _ = build_simple_model()
-    _settings['org_mode'] = _settings['mind_type'] = "default"
+    _settings['org_mode'] = _settings['mind_type'] = _settings.get('mind_type',"default")
+    
     _settings["mass"] = 2
 
     _settings["action_space"] = 2
-    _settings["state_space"] = len(
-        (_settings["agent_template"])(_settings).getState())
+    _settings["state_space"] =  (_settings["agent_template"])(_settings).statespace 
     # number of input nodes
     _settings['inodes'] = _settings["state_space"]
-    _settings['hnodes'] = 6       # number of hidden nodes
+    _settings['hnodes'] = 14     # number of hidden nodes
     _settings['onodes'] = 2   # number of output nodes
 
     # EVOLUTION SETTINGS
-    _settings["hlocked_time"] = 100
     _settings['gens'] = 10000          # number of generations
     _settings['elitism'] = 0.20      # elitism (selection bias)
     _settings['mutate'] = 0.2       # mutation rate
